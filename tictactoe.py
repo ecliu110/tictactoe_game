@@ -21,6 +21,9 @@ SAMPLE_MOVE = {
     "y_position": 1
 }
 
+GAMES = {}
+NUMGAMES = 0
+
 
 @app.route("/games", methods=['POST'])
 def create_game():
@@ -30,10 +33,22 @@ def create_game():
     :return: a newly initialized game status with status code of 201
     """
 
-    # TODO create and persist a unique game
+    # Create and persist a unique game
+    global NUMGAMES, GAMES
+    NUMGAMES +=1
+    game_id = NUMGAMES
+    game = {
+        "game_id": game_id,
+        "players_turn": "X",
+        "status": "in progress",
+        "board": [
+        [" ", " ", " "],
+        [" ", " ", " "],
+        [" ", " ", " "]
+        ]
+    }
 
-    game = SAMPLE_GAME
-
+    GAMES[game_id] = game
     return flask.jsonify(game), 201
 
 
@@ -47,12 +62,13 @@ def get_game_status(game_id):
                 otherwise, return status code 404
     """
 
-    # TODO Look this game up from some place that holds all of the games
-
-    if game_id != 1:
+    # Look this game up from some place that holds all of the games
+    game = GAMES.get(game_id)
+    if not game:
         # This is an unknown game
         return "Game not found", 404
 
+    game = GAMES[game_id]
     return flask.jsonify(SAMPLE_GAME)
 
 
@@ -68,9 +84,10 @@ def make_move(game_id):
     """
 
     # TODO Look this game up from some place that holds all of the games
-
-    if game_id != 1:
-        # This is an unknown game
+    global NUMGAMES, GAMES
+    # Check if game exists
+    game = GAMES.get(game_id)
+    if not game:
         return "Game not found", 404
 
     move = flask.request.get_json()  # Converts input data to JSON
