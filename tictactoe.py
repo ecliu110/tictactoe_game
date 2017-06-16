@@ -69,7 +69,7 @@ def get_game_status(game_id):
         return "Game not found", 404
 
     game = GAMES[game_id]
-    return flask.jsonify(SAMPLE_GAME)
+    return flask.jsonify(game)
 
 
 @app.route("/games/<int:game_id>", methods=['PUT'])
@@ -83,23 +83,38 @@ def make_move(game_id):
                 if the move is a bad request, return 400 status code
     """
 
-    # TODO Look this game up from some place that holds all of the games
+    # Look this game up from some place that holds all of the games
     global NUMGAMES, GAMES
     # Check if game exists
     game = GAMES.get(game_id)
     if not game:
         return "Game not found", 404
 
+    # Check if game is over
+    if not game["status"] == "in progress":
+        return "This game is already over", 400
+
     move = flask.request.get_json()  # Converts input data to JSON
-    move = SAMPLE_MOVE  # Example of sample input
+    player = move["players_turn"]
+    x = move["x_position"]
+    y = move["y_position"]
 
-    is_valid_move = True  # TODO Validate that this move is valid
+    # Check if it's your turn
+    if not game["players_turn"] == player:
+        return "Its not your turn\n", 400
 
-    if not is_valid_move:
-        return "Invalid move", 400
+    # Validate that this move is valid
+    if x > 2 or y > 2:
+        return "Out of bounds\n", 400
 
-    # TODO Update the game's board
+    if not game["board"][x][y] == " ":
+        return "Invalid move\n", 400
 
-    game = SAMPLE_GAME
+    # Update the game's board
+    game["board"][x][y] = player
+    game["players_turn"] = "X" if (player == "Y") else "Y"
+    GAMES[game_id] = game
 
-    return flask.jsonify(game)
+     # TODO: check if game is over (tie/win)
+
+    return flask.jsonify(game), 200
