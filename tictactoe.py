@@ -96,22 +96,23 @@ def make_move(game_id):
 
     move = flask.request.get_json()  # Converts input data to JSON
     player = move["players_turn"]
-    x = move["x_position"]
-    y = move["y_position"]
+    # input (1,0) = row 0, column 1 -> i = 0, j = 1
+    i = move["y_position"]
+    j = move["x_position"]
 
     # Check if it's your turn
     if not game["players_turn"] == player:
         return "Its not your turn\n", 400
 
     # Validate that this move is valid
-    if x > 2 or y > 2:
+    if i > 2 or j > 2:
         return "Out of bounds\n", 400
 
-    if not game["board"][x][y] == " ":
+    if not game["board"][i][j] == " ":
         return "Invalid move\n", 400
 
     # Update the game's board
-    game["board"][x][y] = player
+    game["board"][i][j] = player
     game["players_turn"] = "X" if (player == "Y") else "Y"
 
     # check if game is over (tie/win)
@@ -134,7 +135,7 @@ def checkWin(board, player):
             return True
     # check diagonals
     if (board[0][0] == board[1][1] == board[2][2] == player) or \
-    (board[0][2] == board[1][1] == board[2][2] == player):
+    (board[2][0] == board[1][1] == board[0][2] == player):
         return True
     return False
 
