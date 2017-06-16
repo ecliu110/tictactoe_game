@@ -10,10 +10,10 @@ Sample input from a single game:
 
 1. Create a game
 
-    Input: 
+    Input:
     ```
     curl -X POST localhost:5000/games
-    ``` 
+    ```
 
     Output:
     ```
@@ -30,12 +30,12 @@ Sample input from a single game:
     ```
 
 2. Make a move on a game
-    
+
     Each move requires a player and move with (X, Y) coordinates, with (0, 0) defined as the upper left corner, e.g.:
-    
+
     ```
                          X-Coordinate
-     
+
                      (0,0) | (1,0) | (2,0)
                     -----------------------
     Y-Coordinate     (0,1) | (1,1) | (2,1)
@@ -44,13 +44,13 @@ Sample input from a single game:
     ```
 
     Input Data:
-    
+
     ```
     curl -H "Content-Type: application/json"                            \
         -X PUT -d '{"players_turn":"X","x_position":1,"y_position":2}' \
         localhost:5000/games/123
     ```
-    
+
     Output:
     ```
     {
@@ -64,22 +64,22 @@ Sample input from a single game:
         ]
     }
     ```
-    
+
 3. Check game status
-    
+
     A game may be in the following statuses:
-    
+
         * in progress
         * x wins
         * o wins
         * tie
-    
+
     Input:
-    
+
     ```
     curl localhost:5000/games/1
     ```
-    
+
     Output:
     ```
     {
@@ -93,23 +93,30 @@ Sample input from a single game:
         ]
     }
     ```
-    
+
 4. Invalid Moves
 
-    Wrong Player Attempting to Move:
-    
+    Wrong Player Attempting to Move (case sensitive):
+
     ```
     curl -H "Content-Type: application/json"                            \
         -X PUT -d '{"players_turn":"X","x_position":0,"y_position":0}' \
         localhost:5000/games/1
     ```
-    
+
     Attempting to move to an already taken position:
-    
+
     ```
     curl -H "Content-Type: application/json"                            \
         -X PUT -d '{"players_turn":"X","x_position":2,"y_position":1}' \
         localhost:5000/games/1
     ```
-    
+
+    Attempting to move out of bounds
+    ```
+    curl -H "Content-Type: application/json"                            \
+        -X PUT -d '{"players_turn":"X","x_position":3,"y_position":1}' \
+        localhost:5000/games/1
+    ```
+
     Attempting to move when the game is already over (Cat's Game, or a player has won)
