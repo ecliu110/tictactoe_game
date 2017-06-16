@@ -4,26 +4,8 @@ from flask import Flask
 app = Flask(__name__)
 app.url_map.strict_slashes = False  # Be forgiving with trailing slashes in URL
 
-SAMPLE_GAME = {
-    "game_id": 1,
-    "players_turn": "X",
-    "status": "in progress",  # may also be "x wins", "o wins", or "tie"
-    "board": [
-        [" ", " ", " "],
-        [" ", " ", " "],
-        [" ", " ", " "]
-    ]
-}
-
-SAMPLE_MOVE = {
-    "players_turn": "X",
-    "x_position": 1,
-    "y_position": 1
-}
-
 GAMES = {}
 NUMGAMES = 0
-
 
 @app.route("/games", methods=['POST'])
 def create_game():
@@ -113,19 +95,19 @@ def make_move(game_id):
 
     # Update the game's board
     game["board"][i][j] = player
-    game["players_turn"] = "X" if (player == "Y") else "Y"
+    game["players_turn"] = "X" if (player == "O") else "O"
 
-    # check if game is over (tie/win)
+    # check if game is over 
     if checkWin(game["board"], player):
         game["status"] = player.lower() + " wins"
         GAMES[game_id] = game
-        return flask.jsonify(game), 200
+        return flask.jsonify(game)
 
     if isFull(game["board"]):
         game["status"] = "tie"
 
     GAMES[game_id] = game
-    return flask.jsonify(game), 200
+    return flask.jsonify(game)
 
 def checkWin(board, player):
     # check columns and rows
